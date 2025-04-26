@@ -1,5 +1,7 @@
 package com.peliculas_bbdd.peliculas_bbdd.datatransferobject;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import com.peliculas_bbdd.peliculas_bbdd.Enum.MovieGenre;
 
 import lombok.AllArgsConstructor;
@@ -10,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MovieDto {
+public class MovieDto  extends RepresentationModel<MovieDto> {
 
     private Long id;
     private String title;

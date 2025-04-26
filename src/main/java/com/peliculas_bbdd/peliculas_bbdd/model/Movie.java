@@ -1,5 +1,7 @@
 package com.peliculas_bbdd.peliculas_bbdd.model;
 
+import org.springframework.hateoas.RepresentationModel;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

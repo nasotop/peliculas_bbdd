@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.PutMapping;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 /**
  * Controlador con CRUD de peliculas
  */
@@ -40,7 +43,24 @@ public class MovieController {
     public GenericResponseDto<MovieDto> getAllMovies() {
         GenericResponseDto<MovieDto> result = new GenericResponseDto<>();
         try {
-            result = GenericResponseMapper.ToGenericResponseDto(_movieSvcImpl.getAllMovies());
+            var contents = _movieSvcImpl.getAllMovies();
+
+            for (MovieDto content : contents) {
+                var linkGet = linkTo(methodOn(MovieController.class).getMovie(content.getId())).withRel("Get");
+
+                var linkUpdate = linkTo(methodOn(MovieController.class).updateMovie(content.getId(), null))
+                        .withRel("Update");
+
+                var linkDelete = linkTo(methodOn(MovieController.class).deleteMovie(content.getId())).withRel("Delete");
+
+                content.add(linkGet);
+
+                content.add(linkUpdate);
+
+                content.add(linkDelete);
+            }
+
+            result = GenericResponseMapper.ToGenericResponseDto(contents);
         } catch (Exception e) {
             result.loadError(e.getMessage());
         }
@@ -58,7 +78,16 @@ public class MovieController {
 
         GenericSingleResponseDto<MovieDto> result = new GenericSingleResponseDto<>();
         try {
-            result = GenericResponseMapper.ToGenericSingleResponseDto(_movieSvcImpl.getMovieById(id));
+            var content = _movieSvcImpl.getMovieById(id);
+
+            var linkUpdate = linkTo(methodOn(MovieController.class).updateMovie(id, null)).withRel("Update");
+
+            var linkDelete = linkTo(methodOn(MovieController.class).deleteMovie(id)).withRel("Delete");
+
+            content.add(linkUpdate);
+
+            content.add(linkDelete);
+            result = GenericResponseMapper.ToGenericSingleResponseDto(content);
         } catch (Exception e) {
             result.loadError(e.getMessage());
         }
@@ -75,7 +104,23 @@ public class MovieController {
     public GenericSingleResponseDto<MovieDto> createMovie(@RequestBody MovieDto entity) {
         GenericSingleResponseDto<MovieDto> result = new GenericSingleResponseDto<>();
         try {
-            result = GenericResponseMapper.ToGenericSingleResponseDto(_movieSvcImpl.createMovie(entity));
+            var content = _movieSvcImpl.createMovie(entity);
+
+            var linkGet = linkTo(methodOn(MovieController.class).getMovie(content.getId())).withRel("Get");
+
+            var linkUpdate = linkTo(methodOn(MovieController.class).updateMovie(content.getId(), null))
+                    .withRel("Update");
+
+            var linkDelete = linkTo(methodOn(MovieController.class).deleteMovie(content.getId())).withRel("Delete");
+
+            content.add(linkGet);
+
+            content.add(linkUpdate);
+
+            content.add(linkDelete);
+
+            result = GenericResponseMapper.ToGenericSingleResponseDto(content);
+
         } catch (Exception e) {
             result.loadError(e.getMessage());
         }
@@ -93,7 +138,18 @@ public class MovieController {
     public GenericSingleResponseDto<MovieDto> updateMovie(@PathVariable Long id, @RequestBody MovieDto entity) {
         GenericSingleResponseDto<MovieDto> result = new GenericSingleResponseDto<>();
         try {
-            result = GenericResponseMapper.ToGenericSingleResponseDto(_movieSvcImpl.updateMovie(id, entity));
+            var content = _movieSvcImpl.updateMovie(id, entity);
+
+            var linkGet = linkTo(methodOn(MovieController.class).getMovie(id)).withRel("Get");
+
+            var linkDelete = linkTo(methodOn(MovieController.class).deleteMovie(id)).withRel("Update");
+
+            content.add(linkDelete);
+
+            content.add(linkGet);
+
+            result = GenericResponseMapper.ToGenericSingleResponseDto(content);
+
         } catch (Exception e) {
             result.loadError(e.getMessage());
         }
@@ -111,6 +167,7 @@ public class MovieController {
         GenericSingleResponseDto<String> result = new GenericSingleResponseDto<>();
         try {
             _movieSvcImpl.deleteMovie(id);
+
             result.setContent("Pelicula eliminada de forma correcta");
         } catch (Exception e) {
             result.loadError(e.getMessage());
